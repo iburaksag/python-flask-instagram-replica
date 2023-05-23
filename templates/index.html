@@ -1,0 +1,208 @@
+<!doctype html>
+<html>
+<head>
+  <title>Instagram</title>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+  <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='/bootstrap/css/bootstrap.min.css') }}">
+  <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/ui/4.4.0/firebase-ui-auth.js"></script>
+  <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.4.0/firebase-ui-auth.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+</head>
+<body>
+
+<div class="container">
+  <nav class="navbar">
+    <ul class="nav-links">
+      <li class="nav-item">
+        <a href="/" class="nav-link">Feed <i class="fab fa-instagram"></i></a>
+      </li>
+      <li class="nav-item">
+        <a href="/profile/{{ user_info['username'] }}" class="nav-link">Profile <i class="fas fa-user"></i></a>
+      </li>
+    </ul>
+      {% if user_info %}
+        <button id="sign-out" class="btn btn-danger" hidden="false">Sign out</button>
+      {% else %}
+        <button id="sign-out" class="btn btn-danger" hidden="true">Sign out</button>
+      {% endif %}
+  </nav>
+
+  <div id="firebase-auth-container"></div>
+  <div id="login-info" hidden="true">
+
+      {% if user_info['first_name'] == '' %}
+      <div class="container" style="margin:0 auto;">
+        <div class="column">
+          <div class="card">
+            <br />
+            <ul style="list-style-type: none;">
+              <li>Logged User : {{ user_info.email }}</li>
+              {% set email_parts = user_info.email.split('@') %}
+              {% set username = email_parts[0] %}
+              <li>Username : {{ username }}</li>
+
+              <br>
+              <div>
+                <h6><b>*You need to create your profile details.</b></h6>
+
+                <h4 class="mt-3"><u>Create Profile</u></h4>
+                <form action="/create_user_info" method="post" class="mt-3" enctype="multipart/form-data" id="createUserForm">
+                  <label>First Name</label>
+                  <input type="text" class="form-control w-25 mx-auto" value="" name="first_name" placeholder="Enter your first name" required><br>
+
+                  <label>Last Name</label>
+                  <input type="text" class="form-control w-25 mx-auto" value="" name="last_name" placeholder="Enter your last name" required ><br>
+
+                  <label>Profile Description</label>
+                  <input type="text" class="form-control w-50 mx-auto" value="" name="description" placeholder="Enter the description" required ><br>
+
+                  <label>Avatar</label>
+                  <input type="file" class="form-control w-50 mx-auto" name="avatar" accept="image/png, image/jpg">
+
+                  <input type="submit" class="btn btn-primary w-25 mt-4 mb-5" value="Create" name="submit" />
+                </form>
+              </div>
+            </ul>
+          </div>
+        </div>
+      </div>
+      {% else %}
+
+      <a href="/add_post" class="btn btn-success d-inline-block w-25 mx-auto mt-3 mb-3"> Add Post</a>
+
+
+      <form action="/user_list" method="POST">
+        <div class="form-group mx-sm-3 mb-2">
+          <input type="text" class="form-control d-inline-block w-25" placeholder="Search a profile name" name="name"/>
+          <input type="submit" class="btn btn-primary" value="SEARCH" name="search_button"/>
+        </div>
+      </form>
+
+      <div class="section">
+        <div class="feed">
+
+        {% for post in post_card %}
+
+          <div class="card w-50 mx-auto mb-3">
+             <div class="card-body">
+              <div class="d-flex mb-3">
+                <a href="">
+                  <img src="{{ post.user_info['avatar_url'] }}" class="border rounded-circle me-2"
+                    alt="Avatar" style="height: 40px" />
+                </a>
+                <div class="mt-2">
+                  <a href="/profile/{{ post.user_info['username'] }}" class="text-dark mb-0 mt-3 ml-2">
+                    <strong>{{ post.user_info['username'] }}</strong>
+                  </a>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="bg-image hover-overlay ripple rounded-0" data-mdb-ripple-color="light">
+              <img src="{{ post.post_info['image_url'] }}" class="w-50" />
+            </div>
+
+            <div>
+             <p class="captionText"> {{ post.post_info['caption'] }} </p>
+            </div>
+
+            <div class="card-body">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <a href="">
+                    <form action="/increaseLikeCount/{{ post.post_info.id }}" method="post">
+                      <button type="submit" class="btn btn-link mb-1 btn-lg" data-mdb-ripple-color="dark">
+                        <i class="fas fa-heart"></i>
+                      </button>
+                    </form>
+                  </a>
+                </div>
+                <div>
+                  <a class="text-muted align-items-center"> 0 comments </a>
+                </div>
+              </div>
+
+              <div class="divTotalLikes mb-3">Likes : {{ post.post_info['like_count'] }}</div>
+
+              <div class="d-flex mb-3">
+
+                <div class="form-outline w-100">
+
+                  <form action="/make_comment/{{ post.post_info.id }}" method="post">
+                    <textarea class="form-control" name="comment" id="textAreaExample" maxlength="200" rows="2"></textarea>
+                    <button type="submit" class="btn btn-primary btn-md mt-3 mb-2 float-right" >
+                      Comment
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            <!-- User Comments -->
+            {% set totalComments = post.post_info['comments']|length %}
+            {% for index, commentDic in enumerate(post.post_info['comments']|reverse) %}
+              {% for username, comment in commentDic.items() %}
+              <div class="d-flex mb-3 comment" {% if index >= 5 %}style="display:none;"{% endif %}>
+                <div class="w-100">
+                  <div class="bg-light rounded-3 px-3 py-1 w-100">
+                    <a href="" class="text-dark mb-0">
+                      <a href="/profile/{{ username }}"><strong>{{username}}</strong></a>
+                    </a>
+                    <span class="text-muted  d-block">
+                      <small>{{comment['text']}}</small>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            {% endfor %}
+            <div id="comments-expand" class="mt-2" {% if totalComments <= 5 %}style="display:none;"{% endif %}>
+              <button id="expand-btn" class="btn btn-link">Expand</button>
+            </div>
+
+
+          </div>
+
+       {% endfor %}
+
+        </div>
+      </div>
+
+      {% endif %}
+
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.8.0/firebase-auth.js"></script>
+<script src="{{ url_for('static', filename='app-setup.js') }}"></script>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+<script src="{{ url_for('static', filename='/bootstrap/js/bootstrap-min.js') }}"></script>
+
+<script>
+$(document).ready(function() {
+  var visibleComments = 5; // Number of comments initially visible
+  var totalComments = {{ totalComments }}; // Total number of comments
+
+  // Show the expand button if there are more comments
+  if (totalComments > visibleComments) {
+    $('#comments-expand').show();
+  }
+
+  // Handle expand button click
+  $('#expand-btn').click(function() {
+    $('.comment:hidden').toggle();
+    $(this).text(function(_, text) {
+      return text === 'Expand' ? 'Collapse' : 'Expand';
+    });
+  });
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,10 @@
+indexes:
+- kind: UserInfo
+  properties:
+  - name: id
+  - name: email
+
+- kind: PostInfo
+  properties:
+  - name: id
+  - name: caption

@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+<head>
+  <title>Instagram</title>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+  <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='/bootstrap/css/bootstrap.min.css') }}">
+  <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/ui/4.4.0/firebase-ui-auth.js"></script>
+  <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.4.0/firebase-ui-auth.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+</head>
+<body>
+
+<div class="container">
+  <nav class="navbar">
+    <ul class="nav-links">
+      <li class="nav-item">
+        <a href="/" class="nav-link">Feed <i class="fab fa-instagram"></i></a>
+      </li>
+      <li class="nav-item">
+        <a href="/profile/{{ user_info['username'] }}" class="nav-link">Profile <i class="fas fa-user"></i></a>
+      </li>
+    </ul>
+      {% if user_info %}
+        <button id="sign-out" class="btn btn-danger" hidden="false">Sign out</button>
+      {% else %}
+        <button id="sign-out" class="btn btn-danger" hidden="true">Sign out</button>
+      {% endif %}
+  </nav>
+
+  <div class="container">
+      <h4 class="mt-3">Account : <span class="postSpan">{{ user_info['first_name'] }} {{ user_info['last_name'] }}</span></h4>
+
+      <form action="/add_post" class="addPostForm w-50 mx-auto" enctype="multipart/form-data" method="POST" id="addPostForm">
+
+        <h5 class="mt-4 mb-4"><i>Add New Post</i></h5>
+
+         <div class="formInput form-outline mb-4">
+           <label class="form-label" for="name">Caption</label>
+           <input type="text" name="caption" id="caption" class="form-control" required />
+         </div>
+
+         <div class="formInput form-outline mb-4">
+           <label>Post Image</label>
+           <input type="file" class="form-control w-50 mx-auto" name="postImage" accept="image/png, image/jpg">
+         </div>
+
+         <button type="submit" class="btn btn-success btn-block mx-auto w-50">Add Post</button>
+     </form>
+    </div>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.8.0/firebase-auth.js"></script>
+<script src="{{ url_for('static', filename='app-setup.js') }}"></script>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+<script src="{{ url_for('static', filename='/bootstrap/js/bootstrap-min.js') }}"></script>
+
+</body>
+</html>
