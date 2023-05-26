@@ -1,5 +1,8 @@
 # Python Flask Instagram Replica
-In this assignment I built a simplified replica of Instagram. The system where users can create posts is built. There will be a system here where users can follow each other to see their posts. Eventually this will lead to a timeline where the posts of a user and the posts of users they follow will be merged together. 
+
+> #python #flask #googlecloud #appengine #gcstoragebucket #datastore #firebase #html #css #bootstrap
+
+In this assignment I built a simplified replica of Instagram. The system where users can create posts is built. There will be a system here where users can follow each other to see their posts. Eventually this will lead to a timeline where the posts of a user and the posts of users they follow will be merged together. <br><br>
 Users will also be permitted to comment on other posts. Here the main task I added in is that I had to deal with and manage multiple data storage mechanisms. The Cloud Storage Bucket will solely be used for managing the images. Whereas the Datastore will be used to manage all other information.
 
 ## Getting Started 🏁
